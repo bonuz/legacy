@@ -2,3 +2,16 @@ clsSFTP uses WinSCP library to transfer via SFTP.
 
 - Install WinSCP suite.
 - Project > References > Check 'WinSCP scripting interface .NET wrapper'
+
+Error codes:
+1: no server
+2: no user
+3: no password
+4: no sshfingerprint
+5: no source folder
+6: no destiny folder
+7: no file to transmit
+8: conection error *
+9: error on upload *
+
+* on this error the getDetails() function returns the WinsSCP library error message
