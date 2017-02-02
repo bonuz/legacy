@@ -1,72 +1,84 @@
-VERSION 1.0 CLASS
-BEGIN
-  MultiUse = -1  'True
-  Persistable = 0  'NotPersistable
-  DataBindingBehavior = 0  'vbNone
-  DataSourceBehavior  = 0  'vbNone
-  MTSTransactionMode  = 0  'NotAnMTSObject
-END
-Attribute VB_Name = "clsSFTP"
-Attribute VB_GlobalNameSpace = False
-Attribute VB_Creatable = True
-Attribute VB_PredeclaredId = False
-Attribute VB_Exposed = False
 Option Explicit
 
-Private mySession   As Session
-Private sServer     As String
-Private sUser       As String
-Private sPassword   As String
-Private sSSHFingerPrint As String
-Private bStatus     As Boolean
-Private sDetails    As String
-Private sSource     As String
-Private iErrNumber  As Integer
-Private sFile()     As String
-Private sDestination As String
+'*******************************clsSFTP*********************************
+'Description: allows to send files via SFTP using WinSCP .NET wrapper
+'Date: 30/01/2017
+'Author: FNC
+'Version: 0.1b
+'Comments: -
+'***********************************************************************
 
+Private mySession       As Session
+Private sServer         As String
+Private sUser           As String
+Private sPassword       As String
+Private sSSHFingerPrint As String
+Private sFile()         As String 'sends all the files in the array
+Private sDestination    As String
+Private sDetails        As String
+Private sSource         As String
+Private bStatus         As Boolean
+Private iErrNumber      As Integer
+
+
+'Constructor w/o parameters
  Private Sub Class_Initialize()
     Set mySession = New Session
     bStatus = True
     iErrNumber = 0
  End Sub
 
+'Sets the server address
 Public Sub setServer(ByVal server As String)
     sServer = server
 End Sub
 
+'Sets the user name
 Public Sub setUser(ByVal user As String)
     sUser = user
 End Sub
 
+'Sets the password
 Public Sub setPassword(ByVal password As String)
     sPassword = password
 End Sub
 
+'Sets the SFTP server SSH Finger Print
 Public Sub setSSHFingerPrint(ByVal sshFP As String)
     sSSHFingerPrint = sshFP
 End Sub
 
-Public Function getStatus() As Boolean
-    getStatus = bStatus
-End Function
-
-Public Function getDetails() As String
-    getDetails = sDetails
-End Function
-
+'Sets the source folder of the file
 Public Sub setSource(ByVal source As String)
     sSource = source
 End Sub
 
+'Sets the file name
 Public Sub setFile(file() As String)
     sFile() = file()
 End Sub
 
+'Sets the destiny in the SFTP server
 Public Sub setDestination(ByVal destination As String)
     sDestination = destination
 End Sub
 
+'Gets the status true/false, false means error
+Public Function getStatus() As Boolean
+    getStatus = bStatus
+End Function
+
+'Gets the status detail if anyone
+Public Function getDetails() As String
+    getDetails = sDetails
+End Function
+
+'Gets the error number
+Public Function getErrNumber() As Integer
+    getErrNumber = iErrNumber
+End Function
+
+'Checks if needed parameters are setted
 Public Sub validateParameters()
 'Dim i As Integer
 '
@@ -74,34 +86,33 @@ Public Sub validateParameters()
 '            MsgBox sFile(i)
 '    Next
     
-    
     If sServer Is Nothing Then
         bStatus = False
-        bdetails = "No se ha indicado servidor"
+        sDetails = "No se ha indicado servidor"
         iErrNumber = 1
     ElseIf sUser Is Nothing Then
         bStatus = False
-        bdetails = "No se ha indicado usuario"
+        sDetails = "No se ha indicado usuario"
         iErrNumber = 2
     ElseIf sPassword Is Nothing Then
         bStatus = False
-        bdetails = "No se ha indicado contraseña"
+        sDetails = "No se ha indicado contraseÃ±a"
         iErrNumber = 3
     ElseIf sSSHFingerPrint Is Nothing Then
         bStatus = False
-        bdetails = "No se ha indicado ssh fingerprint"
+        sDetails = "No se ha indicado ssh fingerprint"
         iErrNumber = 4
     ElseIf sSource Is Nothing Then
         bStatus = False
-        bdetails = "No se ha indicado carpeta origen"
+        sDetails = "No se ha indicado carpeta origen"
         iErrNumber = 5
     ElseIf sDestination Is Nothing Then
         bStatus = False
-        bdetails = "No se ha indicado carpeta destino"
+        sDetails = "No se ha indicado carpeta destino"
         iErrNumber = 6
     ElseIf sFile Is Nothing Then
         bStatus = False
-        bdetails = "No se ha indicado archivo a transmitir"
+        sDetails = "No se ha indicado archivo a transmitir"
         iErrNumber = 7
     End If
     
@@ -116,12 +127,15 @@ Public Sub Example()
     
     On Error Resume Next
     
-    If bStatus = True Then upload "test.fin", "/FTP/", "C:\"
+    If bStatus = True Then
+        upload "test.fin", "/FTP/", "C:\"
+        
+    End If
     
     ' Query for errors
     If Err.Number <> 0 Then
         bStatus = False
-        sDetails = "Error: " & Err.Description
+        sDetails = Err.Description
         iErrNumber = 9
         ' Clear the error
         Err.Clear
@@ -134,7 +148,7 @@ Public Sub Example()
     
 End Sub
 
-
+'Opens SFTP session
 Public Sub openSession(ByVal server As String, ByVal user As String, ByVal password As String, ByVal sshfingerprint As String)
     ' Enable custom error handling
    On Error Resume Next
@@ -154,12 +168,14 @@ Public Sub openSession(ByVal server As String, ByVal user As String, ByVal passw
     
     If Err.Number <> 0 Then
         bStatus = False
-        sDetails = "Error de conexion. " & Chr(13) & "(" & Err.Description & ")"
+        'sDetails = "Error de conexion. " & Chr(13) & "(" & Err.Description & ")"
+        sDetails = Err.Description
         iErrNumber = 8
     End If
 
 End Sub
 
+'Closes SFTP session
 Public Sub closeSession()
 
     ' Disconnect, clean up
@@ -167,7 +183,8 @@ Public Sub closeSession()
 
 End Sub
 
-Public Function upload(ByVal file As String, ByVal pathDest As String, ByVal pathOri As String) As String
+'Uploads a file
+Private Function upload(ByVal file As String, ByVal pathDest As String, ByVal pathOri As String) As String
     ' Upload files
     Dim myTransferOptions As New TransferOptions
     myTransferOptions.TransferMode = TransferMode_Binary
