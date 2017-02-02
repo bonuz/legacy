@@ -1,0 +1,4 @@
+clsSFTP uses WinSCP library to transfer via SFTP.
+
+- Install WinSCP suite.
+- Project > References > Check 'WinSCP scripting interface .NET wrapper'
