@@ -14,7 +14,7 @@ Const sErrDes       As String = "\des.err"
 Const okReg         As String = " secret key imported"
 Const yaReg         As String = " already in secret keyring"
 Const okRegEs       As String = " clave secreta importada"
-Const yaRegEs       As String = " ya estaba en el almac‚n secreto"
+Const yaRegEs       As String = " ya estaba en el almacâ€šn secreto"
 Const maxI          As Integer = 200
 
 'gpg --import c:\claves\secring.gpg
